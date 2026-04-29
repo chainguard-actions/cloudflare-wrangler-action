@@ -1,6 +1,12 @@
 # cloudflare/wrangler-action
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/cloudflare/wrangler-action](https://github.com/cloudflare/wrangler-action).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v3.14.1 | [`v3.14.1`](https://github.com/chainguard-actions/wrangler-action/tree/v3.14.1) | — |
 
 ## Privacy
 
