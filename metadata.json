@@ -1,7 +1,0 @@
-{
-  "owner": "cloudflare",
-  "name": "wrangler-action",
-  "visibility": "internal",
-  "description": "🧙‍♀️ easily deploy cloudflare workers applications using wrangler and github actions",
-  "block_publish": false
-}
