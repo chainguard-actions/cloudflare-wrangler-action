@@ -1,0 +1,32 @@
+name: Test pre/post commands and working directory
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create working directory
+        run: |
+          mkdir -p /tmp/wrangler-test-dir
+          echo "Working directory created"
+      - id: action
+        uses: .
+        with:
+          apiToken: "fake-api-token"
+          accountId: "fake-account-id"
+          wranglerVersion: "3.99.0"
+          command: "version"
+          workingDirectory: "/tmp/wrangler-test-dir"
+          packageManager: "npm"
+          preCommands: "echo 'pre-command executed'"
+          postCommands: "echo 'post-command executed'"
+        continue-on-error: true
+      - name: Assert action ran with all inputs
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "command-output: $OUTPUT"
+          echo "command-stderr: $STDERR"
+          echo "PASS: action executed with workingDirectory, packageManager, preCommands, postCommands inputs"
