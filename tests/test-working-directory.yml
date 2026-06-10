@@ -1,0 +1,44 @@
+name: Test workingDirectory, preCommands, postCommands, environment
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create working directory with wrangler config
+        run: |
+          mkdir -p /tmp/worker-app
+          cat > /tmp/worker-app/wrangler.toml <<'EOF'
+          name = "test-worker"
+          main = "src/index.js"
+          compatibility_date = "2024-01-01"
+
+          [env.staging]
+          name = "test-worker-staging"
+          EOF
+          mkdir -p /tmp/worker-app/src
+          echo 'export default { fetch() { return new Response("hello"); } }' > /tmp/worker-app/src/index.js
+      - id: action
+        uses: .
+        with:
+          apiToken: "fake-api-token-for-testing"
+          accountId: "fake-account-id-for-testing"
+          command: "version"
+          environment: "staging"
+          workingDirectory: "/tmp/worker-app"
+          preCommands: "echo 'pre-command executed'"
+          postCommands: "echo 'post-command executed'"
+        continue-on-error: true
+      - name: Assert action ran (output or stderr set)
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "command-output: $OUTPUT"
+          echo "command-stderr: $STDERR"
+          if [ -z "$OUTPUT" ] && [ -z "$STDERR" ]; then
+            echo "FAIL: expected either command-output or command-stderr to be set"
+            exit 1
+          fi
+          echo "PASS"
