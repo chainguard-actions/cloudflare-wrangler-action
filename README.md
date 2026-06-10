@@ -1,6 +1,6 @@
 # cloudflare/wrangler-action
 
-🧙‍♀️ easily deploy cloudflare workers applications using wrangler and github actions
+Deploy your Cloudflare projects from GitHub using Wrangler
 
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/cloudflare/wrangler-action](https://github.com/cloudflare/wrangler-action).
 
@@ -9,6 +9,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
 | v3.14.1 | [`v3.14.1`](https://github.com/chainguard-actions/cloudflare-wrangler-action/tree/v3.14.1) | — |
+| v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/cloudflare-wrangler-action/tree/v4.0.0) | [`ebbaa15`](https://github.com/cloudflare/wrangler-action/commit/ebbaa1584979971c8614a24965b4405ff95890e0) |
 
 ## Privacy
 
