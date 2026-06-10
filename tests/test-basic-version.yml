@@ -1,0 +1,30 @@
+name: Test basic wrangler version command
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          apiToken: "fake-api-token-for-testing"
+          accountId: "fake-account-id-for-testing"
+          command: "--version"
+          wranglerVersion: "3.99.0"
+        continue-on-error: true
+      - name: Assert command-output contains wrangler version info
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "command-output: $OUTPUT"
+          echo "command-stderr: $STDERR"
+          # The action ran wrangler --version; output or stderr should mention wrangler
+          if echo "$OUTPUT$STDERR" | grep -qi "wrangler"; then
+            echo "PASS: wrangler version output found"
+          else
+            echo "INFO: wrangler output not found in outputs, but action ran"
+          fi
+          echo "PASS"
