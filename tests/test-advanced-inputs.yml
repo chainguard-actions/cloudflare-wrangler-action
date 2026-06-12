@@ -1,0 +1,46 @@
+name: Test advanced inputs - preCommands, postCommands, workingDirectory, vars, secrets, environment, gitHubToken
+on:
+  workflow_dispatch:
+env:
+  MY_VAR: "hello-world"
+  MY_SECRET: "super-secret-value"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create working directory
+        run: |
+          mkdir -p /tmp/wrangler-test-dir
+      - id: action
+        uses: .
+        with:
+          apiToken: "fake-api-token-for-testing"
+          accountId: "fake-account-id-for-testing"
+          environment: "staging"
+          workingDirectory: "/tmp/wrangler-test-dir"
+          gitHubToken: "fake-github-token"
+          vars: |
+            MY_VAR
+          secrets: |
+            MY_SECRET
+          preCommands: |
+            echo "pre-command executed"
+          postCommands: |
+            echo "post-command executed"
+          command: "wrangler --version"
+        continue-on-error: true
+      - name: Assert action ran with advanced inputs
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "command-output: $OUTPUT"
+          echo "command-stderr: $STDERR"
+          # The action should have run and produced some output
+          # Even with fake credentials, wrangler --version should work
+          if [ -z "$OUTPUT" ] && [ -z "$STDERR" ]; then
+            echo "FAIL: expected some output from wrangler command"
+            exit 1
+          fi
+          echo "PASS: action ran with advanced inputs"

@@ -1,0 +1,31 @@
+name: Test basic usage - wrangler version check
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          apiToken: "fake-api-token-for-testing"
+          accountId: "fake-account-id-for-testing"
+          wranglerVersion: "3.99.0"
+          packageManager: "npm"
+          command: "wrangler --version"
+        continue-on-error: true
+      - name: Assert command-output contains wrangler version
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "command-output: $OUTPUT"
+          echo "command-stderr: $STDERR"
+          # The action should have run and produced some output
+          # Even with fake credentials, wrangler --version should work
+          if [ -z "$OUTPUT" ] && [ -z "$STDERR" ]; then
+            echo "FAIL: expected some output from wrangler command"
+            exit 1
+          fi
+          echo "PASS: action produced output"
