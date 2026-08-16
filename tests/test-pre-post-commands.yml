@@ -1,4 +1,4 @@
-name: Test preCommands, postCommands, workingDirectory, and packageManager
+name: Test pre and post commands execution
 on:
   workflow_dispatch:
 jobs:
@@ -6,25 +6,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create working directory
-        run: |
-          mkdir -p /tmp/wrangler-test-workdir
       - id: action
         uses: .
         with:
-          apiToken: "fake-api-token-for-testing"
-          command: "--version"
-          wranglerVersion: "3.99.0"
-          workingDirectory: "."
-          packageManager: "npm"
-          preCommands: "echo 'pre-command executed'"
-          postCommands: "echo 'post-command executed'"
-        continue-on-error: true
-      - name: Assert action ran
+          command: --version
+          preCommands: echo "pre_ran" > /tmp/pre_marker.txt
+          postCommands: echo "post_ran" > /tmp/post_marker.txt
         env:
-          OUTPUT: ${{ steps.action.outputs.command-output }}
-          STDERR: ${{ steps.action.outputs.command-stderr }}
+          CLOUDFLARE_API_TOKEN: fake-token-for-testing
+      - name: Assert pre-command ran
         run: |
-          echo "command-output: $OUTPUT"
-          echo "command-stderr: $STDERR"
-          echo "PASS: action ran with preCommands, postCommands, workingDirectory, and packageManager inputs"
+          if [ ! -f /tmp/pre_marker.txt ]; then
+            echo "FAIL: pre_marker.txt not found - pre-command did not run"
+            exit 1
+          fi
+          CONTENT=$(cat /tmp/pre_marker.txt)
+          echo "pre marker content: $CONTENT"
+          if [ "$CONTENT" != "pre_ran" ]; then
+            echo "FAIL: expected 'pre_ran', got: $CONTENT"
+            exit 1
+          fi
+          echo "PASS: pre-command ran successfully"
+      - name: Assert post-command ran
+        run: |
+          if [ ! -f /tmp/post_marker.txt ]; then
+            echo "FAIL: post_marker.txt not found - post-command did not run"
+            exit 1
+          fi
+          CONTENT=$(cat /tmp/post_marker.txt)
+          echo "post marker content: $CONTENT"
+          if [ "$CONTENT" != "post_ran" ]; then
+            echo "FAIL: expected 'post_ran', got: $CONTENT"
+            exit 1
+          fi
+          echo "PASS: post-command ran successfully"

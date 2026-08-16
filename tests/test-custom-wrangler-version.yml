@@ -1,0 +1,31 @@
+name: Test custom wrangler version installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          wranglerVersion: "3.99.0"
+          command: --version
+      - name: Assert output contains expected version
+        env:
+          STDOUT: ${{ steps.action.outputs.command-output }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "stdout: $STDOUT"
+          echo "stderr: $STDERR"
+          COMBINED="${STDOUT}${STDERR}"
+          if [ -z "$COMBINED" ]; then
+            echo "FAIL: both command-output and command-stderr were empty"
+            exit 1
+          fi
+          if echo "$COMBINED" | grep -q "3.99.0"; then
+            echo "PASS: output contains expected version 3.99.0"
+          else
+            echo "FAIL: output does not contain '3.99.0', got: $COMBINED"
+            exit 1
+          fi

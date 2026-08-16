@@ -1,4 +1,4 @@
-name: Test basic wrangler version command
+name: Test working directory input
 on:
   workflow_dispatch:
 jobs:
@@ -6,10 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create working directory with a marker file
+        run: |
+          mkdir -p tests/workdir
+          echo "marker" > tests/workdir/marker.txt
       - id: action
         uses: .
         with:
           command: --version
+          workingDirectory: tests/workdir
         env:
           CLOUDFLARE_API_TOKEN: fake-token-for-testing
       - name: Assert command-output contains version
@@ -25,4 +30,4 @@ jobs:
             echo "FAIL: expected version string in output, got: $ACTUAL"
             exit 1
           fi
-          echo "PASS: command-output contains version string"
+          echo "PASS: wrangler ran successfully from working directory"
