@@ -1,0 +1,28 @@
+name: Test pinned wrangler version installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          command: version
+          wranglerVersion: "3.78.0"
+      - name: Assert pinned wrangler version is used
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+        run: |
+          echo "command-output: $OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "FAIL: command-output is empty"
+            exit 1
+          fi
+          # Should contain the pinned version number
+          if ! echo "$OUTPUT" | grep -q "3.78.0"; then
+            echo "FAIL: expected version 3.78.0 in output, got: $OUTPUT"
+            exit 1
+          fi
+          echo "PASS: pinned wrangler version 3.78.0 is installed and running"

@@ -1,0 +1,27 @@
+name: Test basic wrangler version command
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          command: version
+      - name: Assert command-output contains version
+        env:
+          OUTPUT: ${{ steps.action.outputs.command-output }}
+        run: |
+          echo "command-output: $OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "FAIL: command-output is empty"
+            exit 1
+          fi
+          # wrangler version output should contain a version number like X.Y.Z
+          if ! echo "$OUTPUT" | grep -qE '[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "FAIL: expected version number in output, got: $OUTPUT"
+            exit 1
+          fi
+          echo "PASS: got version output: $OUTPUT"

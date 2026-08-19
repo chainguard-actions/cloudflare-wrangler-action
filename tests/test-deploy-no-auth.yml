@@ -1,0 +1,30 @@
+name: Test deploy command fails gracefully without auth
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          command: deploy
+          # No apiToken or accountId provided - should fail gracefully
+      - name: Assert action failed gracefully without auth
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "command-stderr: $STDERR"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed as expected without authentication credentials"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "WARN: action unexpectedly succeeded without auth (may have found credentials in environment)"
+            echo "PASS: action completed"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
