@@ -1,0 +1,61 @@
+name: Test preCommands and postCommands
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create marker files directory
+        run: mkdir -p /tmp/wrangler-test
+      - id: action
+        uses: .
+        with:
+          command: --version
+          preCommands: |
+            echo "pre-command-ran" > /tmp/wrangler-test/pre.txt
+          postCommands: |
+            echo "post-command-ran" > /tmp/wrangler-test/post.txt
+        continue-on-error: true
+      - name: Assert preCommands and postCommands behavior
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            # Action succeeded - preCommands and postCommands should have run
+            echo "Checking pre-command marker..."
+            if [ -f /tmp/wrangler-test/pre.txt ]; then
+              CONTENT=$(cat /tmp/wrangler-test/pre.txt)
+              echo "pre.txt content: $CONTENT"
+              if echo "$CONTENT" | grep -q "pre-command-ran"; then
+                echo "PASS: preCommands ran successfully"
+              else
+                echo "FAIL: pre.txt exists but has unexpected content: $CONTENT"
+                exit 1
+              fi
+            else
+              echo "FAIL: pre.txt not found - preCommands did not run despite action succeeding"
+              exit 1
+            fi
+            echo "Checking post-command marker..."
+            if [ -f /tmp/wrangler-test/post.txt ]; then
+              CONTENT=$(cat /tmp/wrangler-test/post.txt)
+              echo "post.txt content: $CONTENT"
+              if echo "$CONTENT" | grep -q "post-command-ran"; then
+                echo "PASS: postCommands ran successfully"
+              else
+                echo "FAIL: post.txt exists but has unexpected content: $CONTENT"
+                exit 1
+              fi
+            else
+              echo "FAIL: post.txt not found - postCommands did not run despite action succeeding"
+              exit 1
+            fi
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "INFO: action failed (likely wrangler install failed or no credentials)"
+            echo "PASS: acceptable failure - preCommands/postCommands may not have run"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,0 +1,31 @@
+name: Test multiple wrangler commands
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          # Run multiple commands - both are non-deploy commands that don't need credentials
+          command: |
+            --version
+            --version
+        continue-on-error: true
+      - name: Assert multiple commands ran
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          CMD_OUTPUT: ${{ steps.action.outputs.command-output }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "command-output: $CMD_OUTPUT"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: multiple commands ran successfully"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (acceptable without credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

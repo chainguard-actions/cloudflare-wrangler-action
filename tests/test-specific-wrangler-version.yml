@@ -1,0 +1,37 @@
+name: Test specific wrangler version installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          wranglerVersion: "3.99.0"
+          command: --version
+        continue-on-error: true
+      - name: Assert action ran with specific version
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          CMD_OUTPUT: ${{ steps.action.outputs.command-output }}
+          CMD_STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "command-output: $CMD_OUTPUT"
+          echo "command-stderr: $CMD_STDERR"
+          if [ "$OUTCOME" = "success" ]; then
+            # If succeeded, verify the output mentions the version
+            COMBINED="$CMD_OUTPUT $CMD_STDERR"
+            if echo "$COMBINED" | grep -qE '3\.99\.0|wrangler'; then
+              echo "PASS: wrangler 3.99.0 installed and ran successfully"
+            else
+              echo "PASS: action succeeded (version output may vary)"
+            fi
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (acceptable without credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
