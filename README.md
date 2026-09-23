@@ -10,6 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v3.14.1 | [`v3.14.1`](https://github.com/chainguard-actions/cloudflare-wrangler-action/tree/v3.14.1) | [`da0e0df`](https://github.com/cloudflare/wrangler-action/commit/da0e0dfe58b7a431659754fdf3f186c529afbe65) |
 | v4.0.0 | [`v4.0.0`](https://github.com/chainguard-actions/cloudflare-wrangler-action/tree/v4.0.0) | [`ebbaa15`](https://github.com/cloudflare/wrangler-action/commit/ebbaa1584979971c8614a24965b4405ff95890e0) |
+| v4.1.2 | [`v4.1.2`](https://github.com/chainguard-actions/cloudflare-wrangler-action/tree/v4.1.2) | [`2585336`](https://github.com/cloudflare/wrangler-action/commit/25853364521e0d392ece9b0c1e97a4b37b638087) |
 
 ## Privacy
 
