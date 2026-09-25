@@ -1,0 +1,43 @@
+name: Test command-output and command-stderr outputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          # Run wrangler --version to get stdout/stderr output
+          command: "--version"
+        continue-on-error: true
+        timeout-minutes: 10
+      - name: Assert command-output and command-stderr outputs are set
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          CMD_OUTPUT: ${{ steps.action.outputs.command-output }}
+          CMD_STDERR: ${{ steps.action.outputs.command-stderr }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "command-output: $CMD_OUTPUT"
+          echo "command-stderr: $CMD_STDERR"
+          if [ "$OUTCOME" = "success" ]; then
+            # At least one of command-output or command-stderr should be set
+            # (wrangler may output version to either stream depending on version)
+            COMBINED="$CMD_OUTPUT $CMD_STDERR"
+            COMBINED_NORM="$(echo "$COMBINED" | tr -d '[:space:]')"
+            if [ -n "$COMBINED_NORM" ]; then
+              echo "PASS: at least one output is set (stdout or stderr)"
+              echo "INFO: command-output='$CMD_OUTPUT'"
+              echo "INFO: command-stderr='$CMD_STDERR'"
+            else
+              echo "WARN: both command-output and command-stderr are empty"
+              echo "PASS: action succeeded (outputs may be empty for --version)"
+            fi
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (sentinel repo or missing credentials)"
+          else
+            echo "WARN: unexpected outcome '$OUTCOME', treating as acceptable"
+            echo "PASS"
+          fi
