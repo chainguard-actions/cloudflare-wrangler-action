@@ -4,8 +4,13 @@
   "version": "v4.1.2",
   "commit_sha": "25853364521e0d392ece9b0c1e97a4b37b638087",
   "url": "https://github.com/cloudflare/wrangler-action",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/cloudflare/wrangler-action/v4.1.2/sha256-6ee32cf7648f3e06659d71068ea469116e40e6418b17c750c263418b60d35e77.tar.gz",
+    "sha256": "6ee32cf7648f3e06659d71068ea469116e40e6418b17c750c263418b60d35e77",
+    "size_bytes": 333490
+  }
 }
